@@ -26,23 +26,12 @@ public class Logger
         var colorStr = "";
         var endStr = end;
 
-        if (header == Header.INFO)
-            colorStr = cyan;
-
-        else if (header == Header.ERROR)
-            colorStr = red;
-
-        else if (header == Header.GET)
-            colorStr = yellow;
-
-        else if (header == Header.SEND)
-            colorStr = pink;
-
-        else if (header == Header.MESSAGE)
-            colorStr = green;
-
-        else
-            endStr = "";
+        if (header == Header.INFO) colorStr = cyan;
+        else if (header == Header.ERROR) colorStr = red;
+        else if (header == Header.GET) colorStr = yellow;
+        else if (header == Header.SEND) colorStr = pink;
+        else if (header == Header.MESSAGE) colorStr = green;
+        else endStr = "";
 
         var now = new SimpleDateFormat("HH:mm:ss").format(new Date());
         System.out.println(colorStr + "[" + now + "][" + header + "] - " + message + endStr);
