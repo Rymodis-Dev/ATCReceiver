@@ -1,6 +1,10 @@
 package music.game.production;
 
 import com.fazecast.jSerialComm.SerialPort;
+import com.fazecast.jSerialComm.SerialPortDataListener;
+import com.fazecast.jSerialComm.SerialPortEvent;
+
+import java.util.EventListener;
 
 public class SerialReceiver
 {
@@ -16,6 +20,19 @@ public class SerialReceiver
             return;
         }
 
+        this.CommSerialPort.addDataListener(new SerialPortDataListener()
+        {
+            @Override
+            public int getListeningEvents() { return SerialPort.LISTENING_EVENT_DATA_AVAILABLE; }
+
+            @Override
+            public void serialEvent(SerialPortEvent event)
+            {
+                if (event.getEventType() == SerialPort.LISTENING_EVENT_DATA_AVAILABLE)
+                    ReadSerialConnection();
+            }
+        });
+
         this.CommSerialPort.setBaudRate(baudRate);
         this.CommSerialPort.setNumDataBits(8);
         this.CommSerialPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
@@ -30,11 +47,7 @@ public class SerialReceiver
                         ", NumDataBits: " + this.CommSerialPort.getNumDataBits() +
                         ", Parity: " + this.CommSerialPort.getParity());
 
-        while (true)
-        {
-            var t = new Thread(() -> ReadSerialConnection());
-            t.start();
-        }
+        while (true){}
     }
 
     private void ReadSerialConnection()
@@ -53,7 +66,7 @@ public class SerialReceiver
             if (!resultStr.equals("\n") && !resultStr.equals("\r"))
             {
                 var panelNum = Integer.parseInt(resultStr);
-                Logger.SendLog(Logger.Header.GET, "Get: " + panelNum);
+                Logger.SendLog(Logger.Header.GET, "Tapped panel number: " + panelNum);
             }
         }
         catch (Exception ex)
