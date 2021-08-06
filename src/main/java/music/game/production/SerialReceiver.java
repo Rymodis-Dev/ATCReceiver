@@ -1,10 +1,6 @@
 package music.game.production;
 
 import com.fazecast.jSerialComm.SerialPort;
-import com.fazecast.jSerialComm.SerialPortDataListener;
-import com.fazecast.jSerialComm.SerialPortEvent;
-
-import java.nio.ByteBuffer;
 
 public class SerialReceiver
 {
@@ -24,68 +20,8 @@ public class SerialReceiver
         this.CommSerialPort.setNumDataBits(8);
         this.CommSerialPort.setNumStopBits(SerialPort.ONE_STOP_BIT);
         this.CommSerialPort.setParity(SerialPort.NO_PARITY);
-        this.CommSerialPort.addDataListener(new SerialPortDataListener()
-        {
-            @Override
-            public int getListeningEvents()
-            {
-                return SerialPort.LISTENING_EVENT_DATA_AVAILABLE;
-            }
-
-            @Override
-            public void serialEvent(SerialPortEvent event)
-            {
-                try
-                {
-                    int evt = event.getEventType();
-
-                    if (evt == SerialPort.LISTENING_EVENT_DATA_AVAILABLE)
-                    {
-                        int byteToRead = CommSerialPort.bytesAvailable();
-
-                        if (byteToRead == -1)
-                        {
-                            Close();
-                            Logger.SendLog(Logger.Header.ERROR, "Port is closed");
-                            return;
-                        }
-
-                        var data = new byte[byteToRead];
-                        CommSerialPort.readBytes(data, byteToRead);
-                        var result = ByteBuffer.wrap(data).getInt();
-
-                        Logger.SendLog(Logger.Header.GET, "Get panel ID: " + result);
-                    }
-                }
-                catch (Exception e)
-                {
-                    Logger.SendLog(Logger.Header.ERROR, e.getMessage());
-                    Close();
-                }
-
-
-                var data = event.getReceivedData();
-                int result = -1;
-
-                try
-                {
-                    result = ByteBuffer.wrap(data).getInt();
-                }
-                catch (Exception e)
-                {
-                    Logger.SendLog(Logger.Header.ERROR, e.getMessage());
-                }
-
-                if (result != -1)
-                {
-                    Logger.SendLog(Logger.Header.GET, "Get \"" + result + "\"");
-                    // send keys
-                }
-            }
-        });
-
-        this.CommSerialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 0, 0);
         this.CommSerialPort.openPort();
+        this.CommSerialPort.setComPortTimeouts(SerialPort.TIMEOUT_READ_SEMI_BLOCKING, 100, 0);
 
         Logger.SendLog(Logger.Header.MESSAGE, "Serial comm is running.");
         Logger.SendLog(Logger.Header.INFO,
@@ -93,6 +29,33 @@ public class SerialReceiver
                         ", BaudRate: " + this.CommSerialPort.getBaudRate() +
                         ", NumDataBits: " + this.CommSerialPort.getNumDataBits() +
                         ", Parity: " + this.CommSerialPort.getParity());
+
+        ReadNoneBlocking();
+    }
+
+    private void ReadNoneBlocking()
+    {
+        try
+        {
+            while (true)
+            {
+                var bytesAvailable = this.CommSerialPort.bytesAvailable();
+
+                if (bytesAvailable < 1)
+                {
+                    //Logger.SendLog(Logger.Header.INFO, "Data not received.");
+                    continue;
+                }
+
+                var buffer = new byte[bytesAvailable];
+                var numRead = this.CommSerialPort.readBytes(buffer, buffer.length);
+                Logger.SendLog(Logger.Header.GET, "Get "+ numRead + "bytes");
+            }
+        }
+        catch (Exception e)
+        {
+            Logger.SendLog(Logger.Header.ERROR, e.toString());
+        }
     }
 
     public void Close()

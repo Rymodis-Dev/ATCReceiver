@@ -50,6 +50,6 @@ public class App
         catch (Exception ignored){}
 
         receiver.Run(ports[portIndex], baudRate);
-        //receiver.Close();
+        receiver.Close();
     }
 }
