@@ -4,8 +4,6 @@ import com.fazecast.jSerialComm.SerialPort;
 import com.fazecast.jSerialComm.SerialPortDataListener;
 import com.fazecast.jSerialComm.SerialPortEvent;
 
-import java.util.EventListener;
-
 public class SerialReceiver
 {
     private SerialPort CommSerialPort = null;
@@ -67,6 +65,7 @@ public class SerialReceiver
             {
                 var panelNum = Integer.parseInt(resultStr);
                 Logger.SendLog(Logger.Header.GET, "Tapped panel number: " + panelNum);
+                KeyPresser.PressCorrespondingKey(panelNum);
             }
         }
         catch (Exception ex)
