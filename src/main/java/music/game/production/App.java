@@ -31,11 +31,14 @@ public class App
             }
             catch (Exception e)
             {
-                Logger.SendLog(Logger.Header.ERROR, e.getMessage());
+                Logger.SendLog(Logger.Header.ERROR, e.toString());
+                continue;
             }
 
             if (portIndex > -1 && portIndex < ports.length)
                 break;
+
+            Logger.SendLog(Logger.Header.ERROR, "This number cannot be selected.");
         }
 
         Logger.SendLog(Logger.Header.MESSAGE, "Please enter the baud rate. (Default: 9600(bps))");

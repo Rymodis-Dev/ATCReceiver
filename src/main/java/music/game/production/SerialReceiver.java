@@ -30,31 +30,35 @@ public class SerialReceiver
                         ", NumDataBits: " + this.CommSerialPort.getNumDataBits() +
                         ", Parity: " + this.CommSerialPort.getParity());
 
-        ReadNoneBlocking();
+        while (true)
+        {
+            var t = new Thread(() -> ReadSerialConnection());
+            t.start();
+        }
     }
 
-    private void ReadNoneBlocking()
+    private void ReadSerialConnection()
     {
         try
         {
-            while (true)
+            var bytesAvailable = this.CommSerialPort.bytesAvailable();
+
+            if (bytesAvailable < 1)
+                return;
+
+            var buffer = new byte[5];
+            this.CommSerialPort.readBytes(buffer, Math.min(buffer.length, bytesAvailable));
+            var resultStr = new String(buffer, 0, 1);
+
+            if (!resultStr.equals("\n") && !resultStr.equals("\r"))
             {
-                var bytesAvailable = this.CommSerialPort.bytesAvailable();
-
-                if (bytesAvailable < 1)
-                {
-                    //Logger.SendLog(Logger.Header.INFO, "Data not received.");
-                    continue;
-                }
-
-                var buffer = new byte[bytesAvailable];
-                var numRead = this.CommSerialPort.readBytes(buffer, buffer.length);
-                Logger.SendLog(Logger.Header.GET, "Get "+ numRead + "bytes");
+                var panelNum = Integer.parseInt(resultStr);
+                Logger.SendLog(Logger.Header.GET, "Get: " + panelNum);
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Logger.SendLog(Logger.Header.ERROR, e.toString());
+            Logger.SendLog(Logger.Header.ERROR, ex.toString());
         }
     }
 
