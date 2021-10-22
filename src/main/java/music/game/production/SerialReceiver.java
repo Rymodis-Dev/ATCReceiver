@@ -65,7 +65,6 @@ public class SerialReceiver
             {
                 var panelNum = Integer.parseInt(resultStr);
                 Logger.sendLog(Logger.Header.GET, "Tapped panel number: " + panelNum);
-                KeyPresser.pressCorrespondingKey(panelNum);
 
                 new Thread(new Runnable()
                 {
