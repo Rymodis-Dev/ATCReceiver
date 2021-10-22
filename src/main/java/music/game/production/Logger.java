@@ -21,7 +21,7 @@ public class Logger
         MESSAGE
     }
 
-    public static void SendLog(Header header, String message)
+    public static void sendLog(Header header, String message)
     {
         var colorStr = "";
         var endStr = end;

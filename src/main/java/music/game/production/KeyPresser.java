@@ -5,7 +5,7 @@ import java.awt.event.KeyEvent;
 
 public class KeyPresser
 {
-    public static void PressCorrespondingKey(int panelNum) throws Exception
+    public static void pressCorrespondingKey(int panelNum) throws Exception
     {
         var robot = new Robot();
 
