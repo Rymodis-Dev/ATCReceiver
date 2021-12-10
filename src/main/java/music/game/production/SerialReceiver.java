@@ -7,6 +7,7 @@ import com.fazecast.jSerialComm.SerialPortEvent;
 public class SerialReceiver
 {
     private SerialPort CommSerialPort = null;
+    private int PanelNoLastTime = 0;
 
     public void run(SerialPort port, int baudRate)
     {
@@ -64,6 +65,15 @@ public class SerialReceiver
             if (!resultStr.equals("\n") && !resultStr.equals("\r"))
             {
                 var panelNum = Integer.parseInt(resultStr);
+
+                if (panelNum == this.PanelNoLastTime)
+                {
+                    // wait 0.095s
+                    Thread.sleep(95);
+                    this.PanelNoLastTime = 0;
+                    return;
+                }
+
                 Logger.sendLog(Logger.Header.GET, "Tapped panel number: " + panelNum);
 
                 new Thread(new Runnable()
@@ -75,6 +85,8 @@ public class SerialReceiver
                         catch (Exception e) { Logger.sendLog(Logger.Header.ERROR, e.getMessage()); }
                     }
                 }).start();
+
+                this.PanelNoLastTime = panelNum;
             }
         }
         catch (Exception ex)
